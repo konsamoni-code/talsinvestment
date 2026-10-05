@@ -8,16 +8,37 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'talsinvestmentsecretkey123';
-const ADMIN_KEY = 'tals-admin-2026';
+const ADMIN_KEY = process.env.ADMIN_KEY || 'tals-admin-2026';
 
-app.use(cors());
+app.use(cors({ origin: '*' }));
 app.use(express.json());
+
+// Serve frontend - your html files are in root, one level up from backend
 app.use(express.static(path.join(__dirname, '..')));
 app.use(express.static(path.join(__dirname)));
 
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/talsinvestment')
-    .then(() => console.log('MongoDB Connected successfully'))
-    .catch((err) => console.error('MongoDB Connection Error:', err.message));
+// --- FIX FOR VERCEL SERVERLESS: Cache MongoDB connection ---
+let isConnected = false;
+async function connectDB() {
+    if (isConnected) return;
+    if (!process.env.MONGODB_URI) {
+        console.error('MONGODB_URI is missing in Vercel ENV!');
+        return;
+    }
+    try {
+        await mongoose.connect(process.env.MONGODB_URI);
+        isConnected = true;
+        console.log('MongoDB Connected successfully');
+    } catch (err) {
+        console.error('MongoDB Connection Error:', err.message);
+    }
+}
+connectDB();
+// Connect before every request too (Vercel needs this)
+app.use(async (req, res, next) => {
+    await connectDB();
+    next();
+});
 
 const userSchema = new mongoose.Schema({
     fullname: { type: String, required: true },
@@ -63,7 +84,8 @@ app.post('/api/register', async (req, res) => {
         await newUser.save();
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {
-        res.status(500).json({ message: 'Server error during registration' });
+        console.error('Register error:', error.message);
+        res.status(500).json({ message: 'Server error during registration: ' + error.message });
     }
 });
 
@@ -77,6 +99,7 @@ app.post('/api/login', async (req, res) => {
         const token = jwt.sign({ userId: user._id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
         res.status(200).json({ message: 'Login successful', token, fullname: user.fullname, email: user.email, userId: user._id });
     } catch (error) {
+        console.error('Login error:', error.message);
         res.status(500).json({ message: 'Server error during login' });
     }
 });
@@ -160,12 +183,12 @@ app.post('/api/admin/update-field', async (req, res) => {
     }
 });
 
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, 'dashboard.html')));
-app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, 'login.html')));
-app.get('/register.html', (req, res) => res.sendFile(path.join(__dirname, 'register.html')));
-app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, 'admin.html')));
-app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, 'index.html')));
+app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'dashboard.html')));
+app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'login.html')));
+app.get('/register.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'register.html')));
+app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'admin.html')));
+app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'index.html')));
+app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'index.html')));
 
 if (require.main === module) {
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
