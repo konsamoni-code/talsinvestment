@@ -3,19 +3,17 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const path = require('path');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 const JWT_SECRET = process.env.JWT_SECRET || 'talsinvestmentsecretkey123';
 const ADMIN_KEY = process.env.ADMIN_KEY || 'tals-admin-2026';
 
-app.use(cors({ origin: '*' }));
+// MIDDLEWARE - FIXED CORS
+app.use(cors({
+  origin: ['https://talsinvestment.com', 'https://www.talsinvestment.com', 'https://api.talsinvestment.com'],
+  credentials: true
+}));
 app.use(express.json());
-
-// Serve frontend - your html files are in root, one level up from backend
-app.use(express.static(path.join(__dirname, '..')));
-app.use(express.static(path.join(__dirname)));
 
 // --- FIX FOR VERCEL SERVERLESS: Cache MongoDB connection ---
 let isConnected = false;
@@ -34,7 +32,6 @@ async function connectDB() {
     }
 }
 connectDB();
-// Connect before every request too (Vercel needs this)
 app.use(async (req, res, next) => {
     await connectDB();
     next();
@@ -139,7 +136,7 @@ app.get('/api/transactions', verifyToken, async (req, res) => {
 app.get('/api/admin/users', async (req, res) => {
     try {
         const { adminKey } = req.query;
-        if (adminKey !== ADMIN_KEY) return res.status(401).json({ message: 'Unauthorized' });
+        if (adminKey!== ADMIN_KEY) return res.status(401).json({ message: 'Unauthorized' });
         const users = await User.find({}).select('fullname email balance profit withdrawal createdAt').sort({ createdAt: -1 });
         res.status(200).json(users);
     } catch (error) {
@@ -150,7 +147,7 @@ app.get('/api/admin/users', async (req, res) => {
 app.get('/api/admin/user/:id', async (req, res) => {
     try {
         const { adminKey } = req.query;
-        if (adminKey !== ADMIN_KEY) return res.status(401).json({ message: 'Unauthorized' });
+        if (adminKey!== ADMIN_KEY) return res.status(401).json({ message: 'Unauthorized' });
         const user = await User.findById(req.params.id).select('fullname email balance profit withdrawal');
         if (!user) return res.status(404).json({ message: 'User not found' });
         res.status(200).json(user);
@@ -162,8 +159,8 @@ app.get('/api/admin/user/:id', async (req, res) => {
 app.post('/api/admin/update-field', async (req, res) => {
     try {
         const { adminKey, userId, field, amount, type } = req.body;
-        if (adminKey !== ADMIN_KEY) return res.status(401).json({ message: 'Unauthorized' });
-        if (!userId || !field || !amount || amount <= 0) return res.status(400).json({ message: 'Invalid data' });
+        if (adminKey!== ADMIN_KEY) return res.status(401).json({ message: 'Unauthorized' });
+        if (!userId ||!field ||!amount || amount <= 0) return res.status(400).json({ message: 'Invalid data' });
         const allowedFields = ['balance', 'profit', 'withdrawal'];
         if (!allowedFields.includes(field)) return res.status(400).json({ message: 'Invalid field' });
         let updateQuery = {};
@@ -176,21 +173,19 @@ app.post('/api/admin/update-field', async (req, res) => {
         } else { return res.status(400).json({ message: 'Type must be add or deduct' }); }
         const updatedUser = await User.findByIdAndUpdate(userId, updateQuery, { new: true, runValidators: false }).select('fullname email balance profit withdrawal');
         if (!updatedUser) return res.status(404).json({ message: 'User not found' });
-        if (field === 'balance') { await Transaction.create({ userId: userId, type: type === 'add' ? 'Deposit' : 'Deduction', amount: amount, status: 'Paid' }); }
+        if (field === 'balance') { await Transaction.create({ userId: userId, type: type === 'add'? 'Deposit' : 'Deduction', amount: amount, status: 'Paid' }); }
         res.status(200).json({ message: `${field} ${type}ed successfully`, user: updatedUser });
     } catch (error) {
         res.status(500).json({ message: 'Failed to update field: ' + error.message });
     }
 });
 
-app.get('/dashboard.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'dashboard.html')));
-app.get('/login.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'login.html')));
-app.get('/register.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'register.html')));
-app.get('/admin.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'admin.html')));
-app.get('/index.html', (req, res) => res.sendFile(path.join(__dirname, '..', 'index.html')));
-app.get('/', (req, res) => res.sendFile(path.join(__dirname, '..', 'index.html')));
+// ===== FIXED: NO MORE HTML SERVING - ONLY API =====
+app.get('/', (req, res) => res.json({ message: 'TALS API running ✅', status: 'ok' }));
+app.get('/api', (req, res) => res.json({ message: 'API live - use /api/register, /api/login' }));
 
 if (require.main === module) {
+    const PORT = process.env.PORT || 5000;
     app.listen(PORT, () => console.log(`Server running on http://localhost:${PORT}`));
 }
 module.exports = app;
