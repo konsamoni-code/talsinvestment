@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tals Investment - Grow Your Wealth</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: #0a0f1c;
+            color: #fff;
+        }
+
+        /* LANGUAGE SIDEBAR */
+        .lang-sidebar {
+            position: fixed;
+            top: 0;
+            right: -320px;
+            width: 320px;
+            height: 100vh;
+            background: #121827;
+            border-left: 1px solid #1e293b;
+            z-index: 200;
+            padding: 25px 20px;
+            transition: right 0.4s ease;
+            overflow-y: auto;
+        }
+
+        .lang-sidebar.active {
+            right: 0;
+        }
+
+        .lang-sidebar h3 {
+            font-size: 20px;
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .lang-search {
+            width: 100%;
+            padding: 10px 12px;
+            background: #0a0f1c;
+            border: 1px solid #1e293b;
+            border-radius: 8px;
+            color: #fff;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .lang-search:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .lang-list {
+            list-style: none;
+            max-height: calc(100vh - 140px);
+            overflow-y: auto;
+        }
+
+        .lang-list li {
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #cbd5e1;
+            font-size: 14px;
+            transition: 0.2s;
+            margin-bottom: 4px;
+        }
+
+        .lang-list li:hover {
+            background: #1e293b;
+            color: #fff;
+        }
+
+        .lang-list li.active {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .lang-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .lang-close:hover {
+            color: #fff;
+        }
+
+        .lang-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 199;
+            display: none;
+        }
+
+        .lang-overlay.active {
+            display: block;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 60px;
+            background: rgba(10, 15, 28, 0.95);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .navbar .logo {
+            color: #3b82f6;
+            font-size: 22px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 35px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #e2e8f0;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: #3b82f6;
+        }
+
+        .nav-right {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .lang-btn {
+            padding: 9px 14px;
+            border-radius: 6px;
+            background: rgba(59, 130, 246, 0.15);
+            color: #3b82f6;
+            border: 1px solid #3b82f6;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        .lang-btn:hover {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        /* HERO SECTION - FIXED PATH */
+        .hero {
+            background: linear-gradient(135deg, rgba(5, 10, 20, 0.85) 0%, rgba(10, 15, 28, 0.9) 100%),
+                url('/hero-bg.jpg') center/cover no-repeat;
+            min-height: 85vh;
+            display: flex;
+            align-items: center;
+            padding: 0 80px;
+        }
+
+        .hero-content {
+            max-width: 650px;
+            text-align: left;
+        }
+
+        .hero-welcome {
+            font-size: 16px;
+            color: #3b82f6;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 15px;
+        }
+
+        .hero h1 {
+            font-size: 64px;
+            font-weight: 800;
+            line-height: 1.2;
+            margin-bottom: 20px;
+            color: #ffffff;
+        }
+
+        .hero h1 span {
+            color: #3b82f6;
+        }
+
+        .hero p {
+            font-size: 17px;
+            color: #cbd5e1;
+            line-height: 1.8;
+            margin-bottom: 40px;
+            max-width: 550px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            transition: 0.3s;
+            border: none;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .btn-primary:hover,
+        .btn-secondary:hover {
+            background: #1d4ed8;
+            transform: translateY(-3px);
+        }
+
+        /* ABOUT US / SERVICES SECTION */
+        .about-section {
+            padding: 100px 60px;
+            background: #121827;
+        }
+
+        .about-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .about-card {
+            background: #0a0f1c;
+            padding: 45px 35px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            transition: 0.4s;
+            text-align: center;
+        }
+
+        .about-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 25px 60px rgba(59, 130, 246, 0.2);
+            transform: translateY(-10px);
+        }
+
+        .about-icon {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 12px;
+        }
+
+        .about-icon svg {
+            width: 34px;
+            height: 34px;
+            color: #3b82f6;
+        }
+
+        .about-card h3 {
+            font-size: 24px;
+            color: #fff;
+            margin-bottom: 18px;
+            font-weight: 600;
+        }
+
+        .about-card p {
+            font-size: 15px;
+            color: #94a3b8;
+            line-height: 1.8;
+        }
+
+        /* PLANS SECTION */
+        .plans-section {
+            padding: 100px 60px;
+            background: #0a0f1c;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 38px;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 16px;
+            color: #94a3b8;
+            margin-bottom: 60px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .section-title span {
+            color: #3b82f6;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 35px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .plan-card {
+            background: #121827;
+            padding: 35px 30px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            transition: 0.4s;
+        }
+
+        .plan-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 25px 60px rgba(59, 130, 246, 0.2);
+            transform: translateY(-10px);
+        }
+
+        .plan-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+        }
+
+        .badge-stock {
+            background: #2563eb;
+            color: #fff;
+        }
+
+        .badge-silver {
+            background: #64748b;
+            color: #fff;
+        }
+
+        .badge-gold {
+            background: #f59e0b;
+            color: #0a0f1c;
+        }
+
+        .plan-card h3 {
+            font-size: 26px;
+            color: #fff;
+            margin-bottom: 28px;
+            font-weight: 600;
+        }
+
+        .plan-detail {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+            font-size: 15px;
+            border-bottom: 1px solid #1e293b;
+            padding-bottom: 14px;
+        }
+
+        .plan-detail:last-of-type {
+            border-bottom: none;
+            margin-bottom: 28px;
+        }
+
+        .plan-detail .label {
+            color: #94a3b8;
+        }
+
+        .plan-detail .value {
+            color: #fff;
+            font-weight: 600;
+        }
+
+        .deposit-btn {
+            width: 100%;
+            padding: 14px;
+            background: #2563eb;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .deposit-btn:hover {
+            background: #1d4ed8;
+            transform: scale(1.02);
+        }
+
+        /* CHART SECTION */
+        .chart-section {
+            padding: 100px 60px;
+            background: #121827;
+        }
+
+        .chart-card {
+            background: #0a0f1c;
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .chart-card h3 {
+            font-size: 26px;
+            margin-bottom: 30px;
+            color: #fff;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        #earningsChart {
+            width: 100% !important;
+            height: 400px !important;
+            display: block;
+        }
+
+        /* REVIEWS SECTION */
+        .reviews-section {
+            padding: 100px 60px;
+            background: #0a0f1c;
+        }
+
+        .reviews-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        .review-card {
+            background: #121827;
+            padding: 30px;
+            border-radius: 14px;
+            border: 1px solid #1e293b;
+            transition: 0.3s;
+        }
+
+        .review-card:hover {
+            border-color: #3b82f6;
+            transform: translateY(-5px);
+        }
+
+        .review-card p {
+            color: #cbd5e1;
+            font-style: italic;
+            margin-bottom: 18px;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .review-card .author {
+            color: #3b82f6;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .stars {
+            color: #facc15;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        /* CONTACT SECTION */
+        .contact-section {
+            padding: 100px 60px;
+            background: #121827;
+            text-align: center;
+        }
+
+        .contact-card {
+            background: #0a0f1c;
+            padding: 50px 40px;
+            border-radius: 16px;
+            border: 1px solid #1e293b;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact-card h3 {
+            font-size: 28px;
+            color: #fff;
+            margin-bottom: 20px;
+            font-weight: 700;
+        }
+
+        .contact-card p {
+            font-size: 16px;
+            color: #94a3b8;
+            line-height: 1.8;
+            margin-bottom: 35px;
+        }
+
+        .contact-whatsapp {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 40px;
+            background: #25d366;
+            color: #fff;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 16px;
+            transition: 0.3s;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+        }
+
+        .contact-whatsapp:hover {
+            background: #20ba5a;
+            transform: translateY(-4px);
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.4);
+        }
+
+        .contact-whatsapp svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .contact-email {
+            margin-top: 25px;
+            font-size: 15px;
+            color: #cbd5e1;
+        }
+
+        .contact-email a {
+            color: #3b82f6;
+            text-decoration: none;
+        }
+
+        .contact-email a:hover {
+            text-decoration: underline;
+        }
+
+        /* MODAL POPUP */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #121827;
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid #3b82f6;
+            max-width: 450px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(59, 130, 246, 0.3);
+            position: relative;
+        }
+
+        .modal-content h3 {
+            font-size: 24px;
+            color: #3b82f6;
+            margin-bottom: 15px;
+        }
+
+        .modal-content p {
+            color: #cbd5e1;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 25px;
+        }
+
+        .modal-content .whatsapp-btn {
+            display: inline-block;
+            padding: 14px 30px;
+            background: #25d366;
+            color: #fff;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .modal-content .whatsapp-btn:hover {
+            background: #20ba5a;
+            transform: translateY(-2px);
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 32px;
+            color: #94a3b8;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+
+        .modal-close:hover {
+            color: #fff;
+        }
+
+        /* FOOTER */
+        .footer {
+            text-align: center;
+            padding: 45px 40px;
+            background: #0a0f1c;
+            color: #94a3b8;
+            border-top: 1px solid #1e293b;
+            font-size: 14px;
+        }
+
+        /* ===== MOBILE RESPONSIVE ===== */
+        @media (max-width: 1024px) {
+            .navbar {
+                padding: 18px 30px;
+            }
+
+            .hero {
+                padding: 0 40px;
+            }
+
+            .about-section,
+            .plans-section,
+            .chart-section,
+            .reviews-section,
+            .contact-section {
+                padding: 80px 40px;
+            }
+        }
+
+        @media (max-width: 768px) {
+
+            /* Navbar stacks vertically */
+            .navbar {
+                flex-direction: column;
+                padding: 15px 20px;
+                gap: 15px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 15px;
+            }
+
+            .nav-right {
+                width: 100%;
+                justify-content: center;
+            }
+
+            /* Hero mobile */
+            .hero {
+                padding: 60px 20px;
+                min-height: auto;
+                text-align: center;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                text-align: center;
+            }
+
+            .hero h1 {
+                font-size: 36px;
+            }
+
+            .hero p {
+                font-size: 15px;
+                margin: 0 auto 30px auto;
+            }
+
+            .hero-buttons {
+                justify-content: center;
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+
+            /* Sections mobile */
+            .about-section,
+            .plans-section,
+            .chart-section,
+            .reviews-section,
+            .contact-section {
+                padding: 60px 20px;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .section-subtitle {
+                font-size: 14px;
+            }
+
+            .about-grid,
+            .plans-grid,
+            .reviews-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .about-card,
+            .plan-card {
+                padding: 30px 25px;
+            }
+
+            .chart-card {
+                padding: 25px 15px;
+            }
+
+            #earningsChart {
+                height: 300px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .lang-sidebar {
+                width: 100%;
+                right: -100%;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .section-title {
+                font-size: 24px;
+            }
+
+            .modal-content {
+                width: 90%;
+                padding: 30px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- LANGUAGE SIDEBAR -->
+    <div class="lang-overlay" id="langOverlay"></div>
+    <div class="lang-sidebar" id="langSidebar">
+        <button class="lang-close" id="langClose">×</button>
+        <h3 data-i18n="select_language">Select Language</h3>
+        <input type="text" class="lang-search" id="langSearch" placeholder="Search language...">
+        <ul class="lang-list" id="langList"></ul>
+    </div>
+
+    <!-- DEPOSIT MODAL -->
+    <div class="modal" id="depositModal">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeDepositModal()">×</button>
+            <h3 data-i18n="deposit_title">Deposit Now</h3>
+            <p data-i18n="deposit_text">Contact our manager on WhatsApp to complete your deposit and start earning.</p>
+            <a href="https://wa.me/234XXXXXXXXXX" target="_blank" class="whatsapp-btn" data-i18n="deposit_btn">Contact
+                on WhatsApp</a>
+        </div>
+    </div>
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <div class="logo">TALS INVESTMENT</div>
+        <div class="nav-links">
+            <a href="#home" data-i18n="nav_home">Home</a>
+            <a href="#about" data-i18n="nav_services">Services</a>
+            <a href="#plans" data-i18n="nav_plans">Investment Plans</a>
+            <a href="#chart" data-i18n="nav_earnings">Earnings</a>
+            <a href="#reviews" data-i18n="nav_reviews">Reviews</a>
+            <a href="#contact" data-i18n="nav_contact">Contact Us</a>
+        </div>
+        <div class="nav-right">
+            <button class="lang-btn" id="langBtn">🌐 <span data-i18n="language">Language</span></button>
+        </div>
+    </div>
+
+    <!-- HERO SECTION -->
+    <div class="hero" id="home">
+        <div class="hero-content">
+            <div class="hero-welcome" data-i18n="hero_welcome">Welcome to Tals Investment</div>
+            <h1 data-i18n="hero_title">Invest in the <span>Digital Economy</span></h1>
+            <p data-i18n="hero_subtitle">Your financial future starts here. Let us help you grow your wealth with our
+                expert investment strategies.</p>
+            <div class="hero-buttons">
+                <a href="/register.html" class="btn btn-primary" data-i18n="hero_register">REGISTER</a>
+                <a href="/login.html" class="btn btn-secondary" data-i18n="hero_login">LOGIN</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- ABOUT US / SERVICES SECTION -->
+    <div class="about-section" id="about">
+        <h2 class="section-title" data-i18n="services_title">Our <span>Services</span></h2>
+        <p class="section-subtitle" data-i18n="services_subtitle">We provide tailored investment solutions for your
+            financial growth</p>
+        <div class="about-grid">
+            <div class="about-card">
+                <div class="about-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 data-i18n="service_1_title">Investment Planning</h3>
+                <p data-i18n="service_1_desc">Strategic portfolio management designed to maximize returns while
+                    minimizing risk for long-term wealth.</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 data-i18n="service_2_title">Digital Assets</h3>
+                <p data-i18n="service_2_desc">Secure crypto and digital economy investments with real-time market
+                    analysis and expert guidance.</p>
+            </div>
+
+            <div class="about-card">
+                <div class="about-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z">
+                        </path>
+                    </svg>
+                </div>
+                <h3 data-i18n="service_3_title">Wealth Management</h3>
+                <p data-i18n="service_3_desc">Comprehensive financial advisory services to protect and grow your assets
+                    across all markets.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVESTMENT PLANS SECTION -->
+    <div class="plans-section" id="plans">
+        <h2 class="section-title" data-i18n="plans_title">Our <span>Investment Plans</span></h2>
+        <p class="section-subtitle" data-i18n="plans_subtitle">Choose the perfect plan that matches your investment
+            goals and start earning today</p>
+        <div class="plans-grid">
+            <div class="plan-card">
+                <span class="plan-badge badge-stock" data-i18n="plan_badge_1">Stock Market</span>
+                <h3 data-i18n="plan_1_title">Starter Plan</h3>
+                <div class="plan-detail"><span class="label" data-i18n="plan_min">Minimum Investment</span><span
+                        class="value">$1,000</span></div>
+                <div class="plan-detail"><span class="label" data-i18n="plan_roi">Weekly ROI</span><span
+                        class="value">40%</span></div>
+                <div class="plan-detail"><span class="label" data-i18n="plan_duration">Duration</span><span
+                        class="value" data-i18n="plan_no_limit">No Limit</span></div>
+                <button class="deposit-btn" onclick="openDepositModal()" data-i18n="plan_deposit">Deposit Now</button>
+            </div>
+
+            <div class="plan-card">
+                <span class="plan-badge badge-silver" data-i18n="plan_badge_2">Silver</span>
+                <h3 data-i18n="plan_2_title">Pro Plan</h3>
+                <div class="plan-detail"><span class="label" data-i18n="plan_min">Minimum Investment</span><span
+                        class="value">$5,000</span></div>
+                <div class="plan-detail"><span class="label" data-i18n="plan_roi">Weekly ROI</span><span
+                        class="value">40%</span></div>
+                <div class="plan-detail"><span class="label" data-i18n="plan_duration">Duration</span><span
+                        class="value" data-i18n="plan_no_limit">No Limit</span></div>
+                <button class="deposit-btn" onclick="openDepositModal()" data-i18n="plan_deposit">Deposit Now</button>
+            </div>
+
+            <div class="plan-card">
+                <span class="plan-badge badge-gold" data-i18n="plan_badge_3">Gold</span>
+                <h3 data-i18n="plan_3_title">VIP Plan</h3>
+                <div class="plan-detail"><span class="label" data-i18n="plan_min">Minimum Investment</span><span
+                        class="value">$10,000</span></div>
+                <div class="plan-detail"><span class="label" data-i18n="plan_roi">Weekly ROI</span><span
+                        class="value">40%</span></div>
+                <div class="plan-detail"><span class="label" data-i18n="plan_duration">Duration</span><span
+                        class="value" data-i18n="plan_no_limit">No Limit</span></div>
+                <button class="deposit-btn" onclick="openDepositModal()" data-i18n="plan_deposit">Deposit Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHART SECTION -->
+    <div class="chart-section" id="chart">
+        <h2 class="section-title" data-i18n="chart_title">Earnings <span>Overview</span></h2>
+        <p class="section-subtitle" data-i18n="chart_subtitle">See how your investment grows over time with our proven
+            strategy</p>
+        <div class="chart-card">
+            <h3 data-i18n="chart_heading">Monthly Growth Chart</h3>
+            <canvas id="earningsChart"></canvas>
+        </div>
+    </div>
+
+    <!-- REVIEWS SECTION -->
+    <div class="reviews-section" id="reviews">
+        <h2 class="section-title" data-i18n="reviews_title">What Our <span>Investors Say</span></h2>
+        <p class="section-subtitle" data-i18n="reviews_subtitle">Join thousands of satisfied investors growing their
+            wealth with us</p>
+        <div class="reviews-grid">
+            <div class="review-card">
+                <div class="stars">★★★</div>
+                <p data-i18n="review_1">"Tals Investment changed my financial game. The dashboard makes tracking easy
+                    and customer support is responsive. Highly recommended!"</p>
+                <div class="author">- James K.</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★</div>
+                <p data-i18n="review_2">"Professional platform with excellent service. The interface is clean and I can
+                    monitor my investments in real-time without any issues."</p>
+                <div class="author">- Sarah M.</div>
+            </div>
+            <div class="review-card">
+                <div class="stars">★★★</div>
+                <p data-i18n="review_3">"Transparent and secure platform. I feel confident using it and the support team
+                    is always available when I need help."</p>
+                <div class="author">- David L.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTACT SECTION -->
+    <div class="contact-section" id="contact">
+        <h2 class="section-title" data-i18n="contact_title">Contact <span>Us</span></h2>
+        <p class="section-subtitle" data-i18n="contact_subtitle">Have questions? Our support team is here to help you
+            24/7</p>
+        <div class="contact-card">
+            <h3 data-i18n="contact_heading">Get in Touch</h3>
+            <p data-i18n="contact_desc">Reach out to our company manager directly on WhatsApp for deposits, account
+                support, or investment inquiries. We typically respond within 24 hours.</p>
+            <a href="https://wa.me/234XXXXXXXXXX" target="_blank" class="contact-whatsapp">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.52-.075-.148-.67-1.611-.916-2.206-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.003.49 1.345.62.564.18 1.078.155 1.483.094.452-.067 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648l-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.449-4.437 9.884-9.885 9.884m8.413-18.301a10.824 10.824 0 00-7.021-2.929c-6.179 0-11.195 5.015

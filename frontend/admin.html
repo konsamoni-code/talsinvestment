@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Tals Investment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Arial, sans-serif;
+        }
+
+        body {
+            background: #0a0f1c;
+            color: #fff;
+            padding: 30px 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #3b82f6;
+            margin-bottom: 30px;
+            text-align: center;
+            font-size: 32px;
+        }
+
+        .admin-header {
+            background: #121827;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            margin-bottom: 30px;
+        }
+
+        .admin-header input {
+            width: 300px;
+            padding: 12px 16px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            background: #0a0f1c;
+            color: #fff;
+            font-size: 15px;
+        }
+
+        .admin-header button {
+            padding: 12px 24px;
+            background: #2563eb;
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            font-weight: 700;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+
+        .admin-header button:hover {
+            background: #1d4ed8;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 30px;
+        }
+
+        .users-table {
+            background: #121827;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+        }
+
+        .users-table h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table thead {
+            border-bottom: 1px solid #334155;
+        }
+
+        table th {
+            text-align: left;
+            padding: 12px;
+            color: #94a3b8;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+
+        table td {
+            padding: 15px 12px;
+            border-bottom: 1px solid #334155;
+            font-size: 14px;
+        }
+
+        table tr:hover {
+            background: #1e293b;
+            cursor: pointer;
+        }
+
+        table tr.active {
+            background: #1e293b;
+            border-left: 3px solid #3b82f6;
+        }
+
+        .manage-panel {
+            background: #121827;
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid #1e293b;
+            position: sticky;
+            top: 30px;
+        }
+
+        .manage-panel h2 {
+            color: #3b82f6;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+
+        .form-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .form-section h3 {
+            color: #cbd5e1;
+            font-size: 15px;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #94a3b8;
+            font-weight: 500;
+            font-size: 13px;
+        }
+
+        input,
+        select,
+        button {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #1e293b;
+            background: #0a0f1c;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn-add {
+            background: #22c55e;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-add:hover {
+            background: #16a34a;
+        }
+
+        .btn-deduct {
+            background: #dc2626;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 8px;
+        }
+
+        .btn-deduct:hover {
+            background: #b91c1c;
+        }
+
+        .user-info {
+            background: #0a0f1c;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #1e293b;
+        }
+
+        .user-info p {
+            color: #94a3b8;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .user-info strong {
+            color: #fff;
+        }
+
+        .alert {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.success {
+            background: rgba(34, 197, 94, 0.15);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+
+        .alert.error {
+            background: rgba(220, 38, 38, 0.15);
+            border: 1px solid #dc2626;
+            color: #dc2626;
+        }
+
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+
+            .manage-panel {
+                position: static;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Tals Investment - Admin Panel</h1>
+
+        <div class="admin-header">
+            <input type="password" id="adminKey" placeholder="Enter admin key" value="tals-admin-2026">
+            <button onclick="loadUsers()">Load All Users</button>
+        </div>
+
+        <div class="alert" id="alert"></div>
+
+        <div class="grid">
+            <!-- USERS TABLE -->
+            <div class="users-table">
+                <h2>All Registered Users</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Balance</th>
+                            <th>Profit</th>
+                            <th>Joined</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <tr>
+                            <td colspan="5" style="text-align:center;padding:30px;color:#94a3b8;">Enter admin key and
+                                click Load All Users</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- MANAGE PANEL -->
+            <div class="manage-panel">
+                <h2>Manage User</h2>
+                <div id="noUserSelected" style="text-align:center;color:#94a3b8;padding:40px 20px;">
+                    Click on a user from the table to manage their account
+                </div>
+
+                <div id="manageUserContent" style="display:none;">
+                    <div class="user-info" id="userInfo"></div>
+
+                    <!-- BALANCE SECTION -->
+                    <div class="form-section">
+                        <h3>Balance Control</h3>
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" id="balanceAmount" placeholder="1000" step="0.01" min="0">
+                        </div>
+                        <button class="btn-add" onclick="updateField('balance', 'add')">+ Add Balance</button>
+                        <button class="btn-deduct" onclick="updateField('balance', 'deduct')">- Deduct Balance</button>
+                    </div>
+
+                    <!-- PROFIT SECTION -->
+                    <div class="form-section">
+                        <h3>Profit Control</h3>
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" id="profitAmount" placeholder="500" step="0.01" min="0">
+                        </div>
+                        <button class="btn-add" onclick="updateField('profit', 'add')">+ Add Profit</button>
+                        <button class="btn-deduct" onclick="updateField('profit', 'deduct')">- Deduct Profit</button>
+                    </div>
+
+                    <!-- WITHDRAWAL SECTION -->
+                    <div class="form-section">
+                        <h3>Withdrawal Control</h3>
+                        <div class="form-group">
+                            <label>Amount ($)</label>
+                            <input type="number" id="withdrawalAmount" placeholder="200" step="0.01" min="0">
+                        </div>
+                        <button class="btn-add" onclick="updateField('withdrawal', 'add')">+ Add Withdrawal</button>
+                        <button class="btn-deduct" onclick="updateField('withdrawal', 'deduct')">- Deduct
+                            Withdrawal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedUser = null;
+
+        function showAlert(message, type) {
+            const alert = document.getElementById('alert');
+            alert.textContent = message;
+            alert.className = `alert ${type}`;
+            alert.style.display = 'block';
+            setTimeout(() => alert.style.display = 'none', 4000);
+        }
+
+        async function loadUsers() {
+            const adminKey = document.getElementById('adminKey').value.trim();
+            if (!adminKey) return showAlert('Enter admin key', 'error');
+
+            try {
+                const res = await fetch(`/api/admin/users?adminKey=${adminKey}`);
+                if (!res.ok) throw new Error('Invalid admin key');
+
+                const users = await res.json();
+                const tbody = document.getElementById('usersTableBody');
+
+                if (users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:30px;color:#94a3b8;">No users found</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = users.map(user => `
+                    <tr onclick="selectUser('${user._id}')" id="user-${user._id}">
+                        <td><strong>${user.fullname}</strong></td>
+                        <td>${user.email}</td>
+                        <td>$${user.balance.toFixed(2)}</td>
+                        <td>$${user.profit.toFixed(2)}</td>
+                        <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    </tr>
+                `).join('');
+
+                showAlert(`${users.length} users loaded`, 'success');
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        async function selectUser(userId) {
+            const adminKey = document.getElementById('adminKey').value.trim();
+
+            document.querySelectorAll('tbody tr').forEach(tr => tr.classList.remove('active'));
+            document.getElementById(`user-${userId}`).classList.add('active');
+
+            try {
+                const res = await fetch(`/api/admin/user/${userId}?adminKey=${adminKey}`);
+                if (!res.ok) throw new Error('Failed to load user');
+
+                selectedUser = await res.json();
+
+                document.getElementById('userInfo').innerHTML = `
+                    <p><strong>Name:</strong> ${selectedUser.fullname}</p>
+                    <p><strong>Email:</strong> ${selectedUser.email}</p>
+                    <p><strong>Balance:</strong> $${selectedUser.balance.toFixed(2)}</p>
+                    <p><strong>Profit:</strong> $${selectedUser.profit.toFixed(2)}</p>
+                    <p><strong>Withdrawal:</strong> $${selectedUser.withdrawal.toFixed(2)}</p>
+                `;
+
+                document.getElementById('noUserSelected').style.display = 'none';
+                document.getElementById('manageUserContent').style.display = 'block';
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+
+        async function updateField(field, type) {
+            const adminKey = document.getElementById('adminKey').value.trim();
+            const amountInput = document.getElementById(field + 'Amount');
+            const amount = parseFloat(amountInput.value.trim());
+
+            if (!adminKey || !selectedUser || !amount) return showAlert('Fill all fields and select a user', 'error');
+
+            try {
+                const res = await fetch('/api/admin/update-field', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        adminKey,
+                        userId: selectedUser._id,
+                        field: field,
+                        amount,
+                        type
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.message);
+
+                selectedUser = data.user;
+                document.getElementById('userInfo').innerHTML = `
+                    <p><strong>Name:</strong> ${selectedUser.fullname}</p>
+                    <p><strong>Email:</strong> ${selectedUser.email}</p>
+                    <p><strong>Balance:</strong> $${selectedUser.balance.toFixed(2)}</p>
+                    <p><strong>Profit:</strong> $${selectedUser.profit.toFixed(2)}</p>
+                    <p><strong>Withdrawal:</strong> $${selectedUser.withdrawal.toFixed(2)}</p>
+                `;
+
+                amountInput.value = '';
+                showAlert(`${field} ${type}ed successfully`, 'success');
+                loadUsers();
+            } catch (err) {
+                showAlert(err.message, 'error');
+            }
+        }
+    </script>
+</body>
+
+</html>
